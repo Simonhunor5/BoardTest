@@ -22,6 +22,8 @@
 
 /* USER CODE BEGIN 0 */
 
+#define RC522_VERSION_REG 0x37
+
 /* USER CODE END 0 */
 
 SPI_HandleTypeDef hspi3;
@@ -40,11 +42,11 @@ void MX_SPI3_Init(void)
   hspi3.Instance = SPI3;
   hspi3.Init.Mode = SPI_MODE_MASTER;
   hspi3.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi3.Init.DataSize = SPI_DATASIZE_4BIT;
-  hspi3.Init.CLKPolarity = SPI_POLARITY_LOW;
+  hspi3.Init.DataSize = SPI_DATASIZE_8BIT;
+  hspi3.Init.CLKPolarity = SPI_POLARITY_HIGH;
   hspi3.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi3.Init.NSS = SPI_NSS_SOFT;
-  hspi3.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+  hspi3.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
   hspi3.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi3.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi3.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -137,4 +139,23 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* spiHandle)
 
 /* USER CODE BEGIN 1 */
 
+uint8_t RC522_ReadRegister(uint8_t reg) {
+    uint8_t txData[2], rxData[2];
+
+    txData[0] = ((reg << 1) & 0x7E) | 0x80;
+    txData[1] = 0x00;
+
+    HAL_SPI_Transmit(&hspi3, &txData[0], 1, HAL_MAX_DELAY);
+    HAL_SPI_Receive(&hspi3, &rxData[1], 1, HAL_MAX_DELAY);
+
+    return rxData[1];
+}
+
+
+void Test_SPI_Communication() {
+	uint8_t version = RC522_ReadRegister(RC522_VERSION_REG);
+
+
+	UART_Send_Data("SPI Test: RC522 Version Register = 0x%X\r\n", version);
+}
 /* USER CODE END 1 */

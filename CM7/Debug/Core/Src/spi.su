@@ -1,3 +1,5 @@
-../Core/Src/spi.c:30:6:MX_SPI3_Init	8	static
-../Core/Src/spi.c:72:6:HAL_SPI_MspInit	240	static
-../Core/Src/spi.c:114:6:HAL_SPI_MspDeInit	16	static
+../Core/Src/spi.c:32:6:MX_SPI3_Init	8	static
+../Core/Src/spi.c:74:6:HAL_SPI_MspInit	240	static
+../Core/Src/spi.c:116:6:HAL_SPI_MspDeInit	16	static
+../Core/Src/spi.c:142:9:RC522_ReadRegister	24	static
+../Core/Src/spi.c:155:6:Test_SPI_Communication	16	static

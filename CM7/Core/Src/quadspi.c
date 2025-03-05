@@ -24,7 +24,7 @@
 
 /* USER CODE END 0 */
 
-QSPI_HandleTypeDef hqspi1;
+QSPI_HandleTypeDef hqspi;
 
 /* QUADSPI init function */
 void MX_QUADSPI_Init(void)
@@ -37,16 +37,16 @@ void MX_QUADSPI_Init(void)
   /* USER CODE BEGIN QUADSPI_Init 1 */
 
   /* USER CODE END QUADSPI_Init 1 */
-  hqspi1.Instance = QUADSPI;
-  hqspi1.Init.ClockPrescaler = 255;
-  hqspi1.Init.FifoThreshold = 1;
-  hqspi1.Init.SampleShifting = QSPI_SAMPLE_SHIFTING_NONE;
-  hqspi1.Init.FlashSize = 25;
-  hqspi1.Init.ChipSelectHighTime = QSPI_CS_HIGH_TIME_1_CYCLE;
-  hqspi1.Init.ClockMode = QSPI_CLOCK_MODE_0;
-  hqspi1.Init.FlashID = QSPI_FLASH_ID_1;
-  hqspi1.Init.DualFlash = QSPI_DUALFLASH_DISABLE;
-  if (HAL_QSPI_Init(&hqspi1) != HAL_OK)
+  hqspi.Instance = QUADSPI;
+  hqspi.Init.ClockPrescaler = 255;
+  hqspi.Init.FifoThreshold = 1;
+  hqspi.Init.SampleShifting = QSPI_SAMPLE_SHIFTING_NONE;
+  hqspi.Init.FlashSize = 25;
+  hqspi.Init.ChipSelectHighTime = QSPI_CS_HIGH_TIME_1_CYCLE;
+  hqspi.Init.ClockMode = QSPI_CLOCK_MODE_0;
+  hqspi.Init.FlashID = QSPI_FLASH_ID_1;
+  hqspi.Init.DualFlash = QSPI_DUALFLASH_DISABLE;
+  if (HAL_QSPI_Init(&hqspi) != HAL_OK)
   {
     Error_Handler();
   }
@@ -380,45 +380,29 @@ uint8_t OWN_QSPI_EraseSector(uint32_t startAddr, uint32_t endAddr){
     return HAL_OK;
 }
 
-uint8_t OWN_QSPI_Tester(void) {
+uint8_t OWN_QSPI_Tester(void){
     QSPI_CommandTypeDef sCommand;
     uint8_t status;
     uint8_t read_reg[64] = {0};
     uint8_t write_reg[64] = {0};
-
-    UART_Send_Data("Starting QSPI Test...\r\n");
-
-    // 1. Enable Write Operation
-    if (OWN_QSPI_WriteEnable() != HAL_OK) {
-        UART_Send_Data("ERROR: QSPI Write Enable Failed!\r\n");
+    // Erase a 4kB Sector:
+    // 1. Enable the write operation
+    if (OWN_QSPI_WriteEnable() != HAL_OK)
         return HAL_ERROR;
-    }
-    UART_Send_Data("QSPI Write Enable Success!\r\n");
 
-    // 2. Read and Verify Status Register
-    if (OWN_QSPI_ReadStatus(&status) != HAL_OK) {
-        UART_Send_Data("ERROR: QSPI Status Register Read Failed!\r\n");
+    // 2. Check if status is correct -- WEL = 1, BPx = 0, QE = 1
+    if(OWN_QSPI_ReadStatus(&status) != HAL_OK)
         return HAL_ERROR;
-    }
-    UART_Send_Data("QSPI Status Register Read: 0x%02X\r\n", status);
+    if((status & 0x7E) != 0x42)
+        return HAL_ERROR;
 
-    if ((status & 0x7E) != 0x42) {
-        UART_Send_Data("ERROR: QSPI Status Incorrect! Expected 0x42, Got 0x%02X\r\n", status);
+    // 3. Clear a sector from address 0
+    if(OWN_QSPI_EraseSector(0,63) != HAL_OK)
         return HAL_ERROR;
-    }
-    UART_Send_Data("QSPI Status Verified (WEL = 1, QE = 1, BPx = 0)\r\n");
 
-    // 3. Erase a Sector (4kB)
-    UART_Send_Data("Erasing QSPI Sector at Address: 0x00000000...\r\n");
-    if (OWN_QSPI_EraseSector(0, 63) != HAL_OK) {
-        UART_Send_Data("ERROR: QSPI Erase Failed!\r\n");
-        return HAL_ERROR;
-    }
     HAL_Delay(2);
-    UART_Send_Data("QSPI Sector Erased Successfully!\r\n");
 
-    // 4. Read Erased Memory
-    UART_Send_Data("Reading Erased Data...\r\n");
+    // 4. Check erased zones
     sCommand.InstructionMode = QSPI_INSTRUCTION_1_LINE;
     sCommand.Instruction = QUAD_OUT_FAST_READ_CMD;
     sCommand.AddressMode = QSPI_ADDRESS_1_LINE;
@@ -432,80 +416,57 @@ uint8_t OWN_QSPI_Tester(void) {
     sCommand.SIOOMode = QSPI_SIOO_INST_EVERY_CMD;
     sCommand.NbData = 64;
 
-    if (HAL_QSPI_Command(&hqspi1, &sCommand, HAL_QSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
-        UART_Send_Data("ERROR: QSPI Read Command Failed!\r\n");
+    if (HAL_QSPI_Command(&hqspi1, &sCommand, HAL_QSPI_TIMEOUT_DEFAULT_VALUE)!= HAL_OK) {
         return HAL_ERROR;
     }
 
     if (HAL_QSPI_Receive(&hqspi1, read_reg, HAL_QSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
-        UART_Send_Data("ERROR: QSPI Read Receive Failed!\r\n");
         return HAL_ERROR;
     }
 
     HAL_Delay(2);
 
-    // Print First 16 Bytes of Read Data
-    UART_Send_Data("QSPI Read Success! First 16 Bytes: ");
-    for (uint8_t i = 0; i < 16; i++) {
-        UART_Send_Data("0x%02X ", read_reg[i]);
-    }
-    UART_Send_Data("\r\n");
-
-    // Check if Erased Successfully
-    for (uint8_t i = 0; i < 64; ++i) {
-        if (read_reg[i] != 0xFF) {
-            UART_Send_Data("ERROR: Erase Verification Failed at Byte %d (Expected 0xFF, Got 0x%02X)\r\n", i, read_reg[i]);
+    for(uint8_t i = 0; i < 64; ++i)
+        if(read_reg[i] != 0xFF)
             return HAL_ERROR;
-        }
-    }
-    UART_Send_Data("Erased Verification Passed!\r\n");
 
-    // 5. Write Dummy Data
-    UART_Send_Data("Writing Dummy Data to Address: 0x00000000...\r\n");
-    for (uint8_t i = 0; i < 64; ++i) {
+    // 5. Write dummy data chunk (64b) starting from address 0
+    for(uint8_t i = 0; i < 64; ++i)
         write_reg[i] = i;
-    }
 
-    if (OWN_QSPI_WriteMemory(write_reg, 0, 64) != HAL_OK) {
-        UART_Send_Data("ERROR: QSPI Write Failed!\r\n");
+    if(OWN_QSPI_WriteMemory(write_reg, 0, 64) != HAL_OK)
         return HAL_ERROR;
-    }
 
     HAL_Delay(2);
-    UART_Send_Data("QSPI Write Success!\r\n");
 
-    // 6. Read Back Data
-    UART_Send_Data("Reading Back Written Data...\r\n");
-    if (HAL_QSPI_Command(&hqspi1, &sCommand, HAL_QSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
-        UART_Send_Data("ERROR: QSPI Read Command Failed!\r\n");
+    // 4. Read back freshly writen values
+    sCommand.InstructionMode = QSPI_INSTRUCTION_1_LINE;
+    sCommand.Instruction = QUAD_OUT_FAST_READ_CMD;
+    sCommand.AddressMode = QSPI_ADDRESS_1_LINE;
+    sCommand.AddressSize = QSPI_ADDRESS_24_BITS;
+    sCommand.Address = 0;
+    sCommand.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
+    sCommand.DataMode = QSPI_DATA_4_LINES;
+    sCommand.DummyCycles = 8;
+    sCommand.DdrMode = QSPI_DDR_MODE_DISABLE;
+    sCommand.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
+    sCommand.SIOOMode = QSPI_SIOO_INST_EVERY_CMD;
+    sCommand.NbData = 64;
+
+    if (HAL_QSPI_Command(&hqspi1, &sCommand, HAL_QSPI_TIMEOUT_DEFAULT_VALUE)!= HAL_OK) {
         return HAL_ERROR;
     }
 
     if (HAL_QSPI_Receive(&hqspi1, read_reg, HAL_QSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
-        UART_Send_Data("ERROR: QSPI Read Receive Failed!\r\n");
         return HAL_ERROR;
     }
 
     HAL_Delay(2);
 
-    // Print First 16 Bytes of Read Data
-    UART_Send_Data("QSPI Read Success! First 16 Bytes: ");
-    for (uint8_t i = 0; i < 16; i++) {
-        UART_Send_Data("0x%02X ", read_reg[i]);
-    }
-    UART_Send_Data("\r\n");
-
-    // Verify Data Match
-    for (uint8_t i = 0; i < 64; ++i) {
-        if (read_reg[i] != write_reg[i]) {
-            UART_Send_Data("ERROR: Data Mismatch at Byte %d (Expected 0x%02X, Got 0x%02X)\r\n", i, write_reg[i], read_reg[i]);
-            return HAL_ERROR;
-        }
-    }
-    UART_Send_Data("QSPI Test Passed!\r\n");
 
     return HAL_OK;
 }
+
 
 
 uint8_t OWN_QSPI_WriteMemory(uint8_t* buffer, uint32_t addr, uint32_t buff_size){

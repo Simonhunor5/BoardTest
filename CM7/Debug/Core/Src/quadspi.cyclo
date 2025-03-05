@@ -8,7 +8,7 @@
 ../Core/Src/quadspi.c:285:9:OWN_QSPI_Read_ID	6
 ../Core/Src/quadspi.c:315:9:OWN_QSPI_Init	6
 ../Core/Src/quadspi.c:346:9:OWN_QSPI_EraseSector	5
-../Core/Src/quadspi.c:383:9:OWN_QSPI_Tester	17
-../Core/Src/quadspi.c:511:9:OWN_QSPI_WriteMemory	10
-../Core/Src/quadspi.c:585:9:OWN_QSPI_EnableMemoryMappedMode	2
-../Core/Src/quadspi.c:610:9:OWN_QSPI_ReadStatus	3
+../Core/Src/quadspi.c:383:9:OWN_QSPI_Tester	13
+../Core/Src/quadspi.c:472:9:OWN_QSPI_WriteMemory	10
+../Core/Src/quadspi.c:546:9:OWN_QSPI_EnableMemoryMappedMode	2
+../Core/Src/quadspi.c:571:9:OWN_QSPI_ReadStatus	3

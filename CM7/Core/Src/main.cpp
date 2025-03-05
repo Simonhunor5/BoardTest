@@ -149,7 +149,7 @@ Error_Handler();
 //  MX_ETH_Init();
   MX_QUADSPI_Init();
   MX_I2C1_Init();
-//  MX_SPI3_Init();
+  MX_SPI3_Init();
   MX_UART5_Init();
 //  MX_USB_OTG_FS_PCD_Init();
   MX_TIM3_Init();
@@ -161,6 +161,7 @@ Error_Handler();
   Servo_Init(&htim3);
   UART_Test_Init();
   UART_Send_String("UART5 Test Initialized!\r\n");
+  Test_SPI_Communication();
 
   driver::imu sensor = driver::imu(&hi2c1, nullptr, 0);
   	  int16_t gyro_val[3];
@@ -173,25 +174,25 @@ Error_Handler();
 
       sensor.readRefGyro();
 
-      volatile uint8_t buffer_test[MEMORY_SECTOR_SIZE];
-      volatile uint8_t buffer_test_back[MEMORY_SECTOR_SIZE];
-       uint32_t var = 0;
-
-       uint8_t idvar;
-       uint16_t sizeVar;
-
-       OWN_QSPI_Read_ID(&idvar, &sizeVar);
-
-       if(OWN_QSPI_Init() != HAL_OK)
-           Error_Handler();
-
-
-       for (var = 0; var < MEMORY_SECTOR_SIZE; var++) {
-           buffer_test[var] = (var & 0xff);
-       }
-
-       if(OWN_QSPI_Tester()!= HAL_OK)
-           Error_Handler();
+//      volatile uint8_t buffer_test[MEMORY_SECTOR_SIZE];
+//      volatile uint8_t buffer_test_back[MEMORY_SECTOR_SIZE];
+//       uint32_t var = 0;
+//
+//       uint8_t idvar;
+//       uint16_t sizeVar;
+//
+//       OWN_QSPI_Read_ID(&idvar, &sizeVar);
+//
+//       if(OWN_QSPI_Init() != HAL_OK)
+//           Error_Handler();
+//
+//
+//       for (var = 0; var < MEMORY_SECTOR_SIZE; var++) {
+//           buffer_test[var] = (var & 0xff);
+//       }
+//
+//       if(OWN_QSPI_Tester()!= HAL_OK)
+//           Error_Handler();
 
 
   /* USER CODE END 2 */
@@ -210,7 +211,7 @@ Error_Handler();
 	  sensor.getAccel(acc_val);
 	  sensor.getGyro(gyro_val);
 
-//	  Send_IMU_Data(gyro_val, mag_val, acc_val);
+	  Send_IMU_Data(gyro_val, mag_val, acc_val);
   }
   /* USER CODE END 3 */
 }

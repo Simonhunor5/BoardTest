@@ -42,7 +42,8 @@ extern SPI_HandleTypeDef hspi3;
 void MX_SPI3_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-
+uint8_t RC522_ReadRegister(uint8_t reg);
+void Test_SPI_Communication();
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
