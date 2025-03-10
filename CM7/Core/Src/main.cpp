@@ -161,6 +161,7 @@ Error_Handler();
   Servo_Init(&htim3);
   UART_Test_Init();
   UART_Send_String("UART5 Test Initialized!\r\n");
+  printf("Binding printf Test!\r\n");
   Test_SPI_Communication();
 
   driver::imu sensor = driver::imu(&hi2c1, nullptr, 0);
@@ -299,7 +300,10 @@ void PeriphCommonClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+extern "C" int _write(int fd, char *ptr, int len){
+    HAL_UART_Transmit(&huart5, (uint8_t *) ptr, len, HAL_MAX_DELAY);
+    return len;
+}
 /* USER CODE END 4 */
 
  /* MPU Configuration */
