@@ -1,0 +1,8 @@
+# Ignore everything 
+* 
+ECHO is on.
+# But keep the required directories and files 
+!CM7/Core/Src/ 
+!CM7/Core/Inc/ 
+!*.ioc 
+!/.gitignore 

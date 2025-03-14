@@ -1,5 +1,0 @@
-../Core/Src/spi.c:32:6:MX_SPI3_Init	2
-../Core/Src/spi.c:74:6:HAL_SPI_MspInit	3
-../Core/Src/spi.c:116:6:HAL_SPI_MspDeInit	2
-../Core/Src/spi.c:142:9:RC522_ReadRegister	1
-../Core/Src/spi.c:155:6:Test_SPI_Communication	1

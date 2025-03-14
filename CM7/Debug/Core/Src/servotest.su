@@ -1,2 +1,0 @@
-../Core/Src/servotest.c:10:6:Servo_Init	16	static
-../Core/Src/servotest.c:17:6:Servo_TestFixedPositions	16	static

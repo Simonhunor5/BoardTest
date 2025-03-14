@@ -1,6 +1,0 @@
-../Core/Src/main.cpp:88:5:int main()	9
-../Core/Src/main.cpp:224:6:void SystemClock_Config()	5
-../Core/Src/main.cpp:288:6:void PeriphCommonClock_Config()	2
-../Core/Src/main.cpp:303:16:int _write(int, char*, int)	1
-../Core/Src/main.cpp:311:6:void MPU_Config()	1
-../Core/Src/main.cpp:342:6:void Error_Handler()	1
