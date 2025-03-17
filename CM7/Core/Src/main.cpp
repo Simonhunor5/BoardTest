@@ -28,8 +28,9 @@
 #include "spi.h"
 #include "tim.h"
 #include "usart.h"
-#include "usb_otg.h"
+#include "usb_device.h"
 #include "gpio.h"
+#include "usbd_cdc_if.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -151,17 +152,16 @@ Error_Handler();
   MX_I2C1_Init();
   MX_SPI3_Init();
   MX_UART5_Init();
-//  MX_USB_OTG_FS_PCD_Init();
   MX_TIM3_Init();
 //  MX_ADC1_Init();
 //  MX_ADC2_Init();
 //  MX_DAC1_Init();
 //  MX_FATFS_Init();
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
   Servo_Init(&htim3);
   UART_Test_Init();
   UART_Send_String("UART5 Test Initialized!\r\n");
-  printf("Binding printf Test!\r\n");
   Test_SPI_Communication();
 
   driver::imu sensor = driver::imu(&hi2c1, nullptr, 0);
@@ -207,6 +207,7 @@ Error_Handler();
     /* USER CODE BEGIN 3 */
 	  Process_LEDs_Buttons();
 	  Servo_TestFixedPositions(&htim3);
+	  printf("Binding printf Test!\r\n");
 //	  UART_Send_String("Hello from STM32 UART5!\r\n");
 	  sensor.getMag(mag_val);
 	  sensor.getAccel(acc_val);
@@ -299,12 +300,13 @@ void PeriphCommonClock_Config(void)
   }
 }
 
-/* USER CODE BEGIN 4 */
-extern "C" int _write(int fd, char *ptr, int len){
-    HAL_UART_Transmit(&huart5, (uint8_t *) ptr, len, HAL_MAX_DELAY);
-    return len;
+extern "C" int _write(int fd, char *ptr, int len) {
+    if (CDC_Transmit_FS((uint8_t *)ptr, len) == USBD_OK) {
+        return len;
+    }
+
+    return 0;
 }
-/* USER CODE END 4 */
 
  /* MPU Configuration */
 
