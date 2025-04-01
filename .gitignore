@@ -1,8 +1,49 @@
-# Ignore everything 
-* 
-ECHO is on.
-# But keep the required directories and files 
-!CM7/Core/Src/ 
-!CM7/Core/Inc/ 
-!*.ioc 
-!/.gitignore 
+# === STM32CubeIDE Default ===
+# Ignore build and generated binaries
+/build/
+Debug/
+Release/
+*.elf
+*.bin
+*.hex
+*.map
+
+# Ignore IDE garbage
+.metadata/
+.settings/
+.cproject
+.project
+*.launch
+*.log
+*.d
+*.dep
+*.o
+*.lst
+
+# Ignore user-specific or local settings
+*.bak
+*.tmp
+*.swp
+*.swo
+*.swn
+
+# CubeMX generated backup
+Backup/
+
+# CubeMX auto-generated code
+MX_*/      # optional if you want to exclude auto-generated stuff
+
+# OS / Editor files
+.DS_Store
+Thumbs.db
+
+# Keep the actual code
+!/**/Src/
+!/**/Inc/
+!*.ioc
+!/.gitignore
+/Drivers
+/Middlewares
+/CM7/USB_DEVICE
+Common/Src/system_stm32h7xx_dualcore_boot_cm4_cm7.c
+/CM7/FATFS

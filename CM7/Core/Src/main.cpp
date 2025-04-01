@@ -20,9 +20,9 @@
 #include "main.h"
 #include "adc.h"
 #include "dac.h"
-#include "eth.h"
 #include "fatfs.h"
 #include "i2c.h"
+#include "lwip.h"
 #include "quadspi.h"
 #include "sdmmc.h"
 #include "spi.h"
@@ -31,6 +31,7 @@
 #include "usb_device.h"
 #include "gpio.h"
 #include "usbd_cdc_if.h"
+#include "ethernetif.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -40,6 +41,7 @@ extern "C" {
 #include "ledsbutton.h"
 #include "servotest.h"
 #include "uarttest.h"
+#include "udpclient.h"
 }
 
 /* USER CODE END Includes */
@@ -52,9 +54,9 @@ extern "C" {
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
-#ifndef HSEM_ID_0
-#define HSEM_ID_0 (0U) /* HW semaphore 0*/
-#endif
+//#ifndef HSEM_ID_0
+//#define HSEM_ID_0 (0U) /* HW semaphore 0*/
+//#endif
 
 /* USER CODE END PD */
 
@@ -126,18 +128,18 @@ int main(void)
 /* When system initialization is finished, Cortex-M7 will release Cortex-M4 by means of
 HSEM notification */
 /*HW semaphore Clock enable*/
-__HAL_RCC_HSEM_CLK_ENABLE();
-/*Take HSEM */
-HAL_HSEM_FastTake(HSEM_ID_0);
-/*Release HSEM in order to notify the CPU2(CM4)*/
-HAL_HSEM_Release(HSEM_ID_0,0);
+//__HAL_RCC_HSEM_CLK_ENABLE();
+///*Take HSEM */
+//HAL_HSEM_FastTake(HSEM_ID_0);
+///*Release HSEM in order to notify the CPU2(CM4)*/
+//HAL_HSEM_Release(HSEM_ID_0,0);
 /* wait until CPU2 wakes up from stop mode */
-timeout = 0xFFFF;
-while((__HAL_RCC_GET_FLAG(RCC_FLAG_D2CKRDY) == RESET) && (timeout-- > 0));
-if ( timeout < 0 )
-{
-Error_Handler();
-}
+//timeout = 0xFFFF;
+//while((__HAL_RCC_GET_FLAG(RCC_FLAG_D2CKRDY) == RESET) && (timeout-- > 0));
+//if ( timeout < 0 )
+//{
+//Error_Handler();
+//}
 /* USER CODE END Boot_Mode_Sequence_2 */
 
   /* USER CODE BEGIN SysInit */
@@ -148,7 +150,7 @@ Error_Handler();
   MX_GPIO_Init();
 //  MX_SDMMC2_SD_Init();
 //  MX_ETH_Init();
-  MX_QUADSPI_Init();
+//  MX_QUADSPI_Init();
   MX_I2C1_Init();
   MX_SPI3_Init();
   MX_UART5_Init();
@@ -158,22 +160,35 @@ Error_Handler();
 //  MX_DAC1_Init();
 //  MX_FATFS_Init();
   MX_USB_DEVICE_Init();
+  MX_LWIP_Init();
+  udp_client_connect();
   /* USER CODE BEGIN 2 */
   Servo_Init(&htim3);
   UART_Test_Init();
-  UART_Send_String("UART5 Test Initialized!\r\n");
-  Test_SPI_Communication();
+//  UART_Send_String("UART5 Test Initialized!\r\n");
+//  Test_SPI_Communication();
 
-  driver::imu sensor = driver::imu(&hi2c1, nullptr, 0);
-  	  int16_t gyro_val[3];
-      int16_t mag_val[3];
-      int16_t acc_val[3];
+//  uint8_t idvar;
+//  uint16_t sizeVar;
+//
+//  OWN_QSPI_Read_ID(&idvar, &sizeVar);
+//
+//  if(OWN_QSPI_Init() != HAL_OK)
+//      Error_Handler();
+//
+//  if(OWN_QSPI_TestFlash(0, 2, 0xAA) != HAL_OK)
+//      Error_Handler();
 
-      sensor.getGyro(gyro_val);
-      sensor.getAccel(acc_val);
-      sensor.getMag(mag_val);
-
-      sensor.readRefGyro();
+//  driver::imu sensor = driver::imu(&hi2c1, nullptr, 0);
+//  	  int16_t gyro_val[3];
+//      int16_t mag_val[3];
+//      int16_t acc_val[3];
+//
+//      sensor.getGyro(gyro_val);
+//      sensor.getAccel(acc_val);
+//      sensor.getMag(mag_val);
+//
+//      sensor.readRefGyro();
 
 //      volatile uint8_t buffer_test[MEMORY_SECTOR_SIZE];
 //      volatile uint8_t buffer_test_back[MEMORY_SECTOR_SIZE];
@@ -205,15 +220,19 @@ Error_Handler();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  Process_LEDs_Buttons();
-	  Servo_TestFixedPositions(&htim3);
-	  printf("Binding printf Test!\r\n");
-//	  UART_Send_String("Hello from STM32 UART5!\r\n");
-	  sensor.getMag(mag_val);
-	  sensor.getAccel(acc_val);
-	  sensor.getGyro(gyro_val);
 
-	  Send_IMU_Data(gyro_val, mag_val, acc_val);
+	  MX_LWIP_Process();
+	  udp_client_periodic();
+	  HAL_Delay(1000);
+//	  Process_LEDs_Buttons();
+//	  Servo_TestFixedPositions(&htim3);
+//	  printf("Binding printf Test!\r\n");
+//	  UART_Send_String("Hello from STM32 UART5!\r\n");
+//	  sensor.getMag(mag_val);
+//	  sensor.getAccel(acc_val);
+//	  sensor.getGyro(gyro_val);
+//
+//	  Send_IMU_Data(gyro_val, mag_val, acc_val);
   }
   /* USER CODE END 3 */
 }

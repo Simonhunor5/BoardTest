@@ -27,9 +27,30 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "string.h"
 
 /* USER CODE BEGIN Includes */
+
+/* USER CODE END Includes */
+
+extern QSPI_HandleTypeDef hqspi;
+
+/* USER CODE BEGIN Private defines */
+uint8_t OWN_QSPI_Init(void);
+uint8_t OWN_QSPI_EraseSector(uint32_t startAddr, uint32_t endAddr);
+uint8_t OWN_QSPI_WriteMemory(uint8_t* buffer, uint32_t addr, uint32_t buff_size);
+uint8_t OWN_QSPI_EnableMemoryMappedMode(void);
+uint8_t OWN_QSPI_Enter4ByteAddressMode(void);
+uint8_t OWN_QSPI_TestFlash(uint32_t startSector, uint32_t numSectors, uint8_t pattern);
+
+uint8_t OWN_QSPI_Read_ID(uint8_t* mfID, uint16_t* chipSize);
+uint8_t OWN_QSPI_ReadStatus(uint8_t* statusReg);
+uint8_t OWN_QSPI_Tester(void);
+
+/* USER CODE END Private defines */
+
+void MX_QUADSPI_Init(void);
+
+/* USER CODE BEGIN Prototypes */
 // IS25LP512M Memory Parameters
 #define MEMORY_FLASH_SIZE   0x4000000
 #define MEMORY_BLOCK_SIZE   0x10000
@@ -55,27 +76,6 @@ extern "C" {
 #define EXIT_4BYTE_ADDR_CMD     0x29
 
 #define DUMMY_CLOCK_CYCLES_READ_QUAD 8
-#define HAL_QPSI_TIMEOUT_DEFAULT_VALUE 5000
-/* USER CODE END Includes */
-
-extern QSPI_HandleTypeDef hqspi1;
-
-/* USER CODE BEGIN Private defines */
-uint8_t OWN_QSPI_Init(void);
-uint8_t OWN_QSPI_EraseSector(uint32_t startAddr, uint32_t endAddr);
-uint8_t OWN_QSPI_WriteMemory(uint8_t* buffer, uint32_t addr, uint32_t buff_size);
-uint8_t OWN_QSPI_EnableMemoryMappedMode(void);
-
-uint8_t OWN_QSPI_Read_ID(uint8_t* mfID, uint16_t* chipSize);
-uint8_t OWN_QSPI_ReadStatus(uint8_t* statusReg);
-uint8_t OWN_QSPI_Tester(void);
-
-/* USER CODE END Private defines */
-
-void MX_QUADSPI_Init(void);
-
-/* USER CODE BEGIN Prototypes */
-
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
