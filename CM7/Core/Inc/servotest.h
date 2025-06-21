@@ -9,9 +9,11 @@
 #define INC_SERVOTEST_H_
 
 #include "main.h"
+#include "udpserver.h"
 
 void Servo_Init(TIM_HandleTypeDef *htim);
 void Servo_TestFixedPositions(TIM_HandleTypeDef *htim);
+void Servo_Update(TIM_HandleTypeDef *htim);
 
 
 #endif /* INC_SERVOTEST_H_ */

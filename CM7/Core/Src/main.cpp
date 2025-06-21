@@ -42,6 +42,7 @@ extern "C" {
 #include "servotest.h"
 #include "uarttest.h"
 #include "udpclient.h"
+#include "udpserver.h"
 }
 
 /* USER CODE END Includes */
@@ -159,25 +160,16 @@ HSEM notification */
 //  MX_ADC2_Init();
 //  MX_DAC1_Init();
 //  MX_FATFS_Init();
-  MX_USB_DEVICE_Init();
+//  MX_USB_DEVICE_Init();
   MX_LWIP_Init();
-  udp_client_connect();
+//  udp_client_connect();
+  udp_server_start();
   /* USER CODE BEGIN 2 */
   Servo_Init(&htim3);
   UART_Test_Init();
 //  UART_Send_String("UART5 Test Initialized!\r\n");
 //  Test_SPI_Communication();
 
-//  uint8_t idvar;
-//  uint16_t sizeVar;
-//
-//  OWN_QSPI_Read_ID(&idvar, &sizeVar);
-//
-//  if(OWN_QSPI_Init() != HAL_OK)
-//      Error_Handler();
-//
-//  if(OWN_QSPI_TestFlash(0, 2, 0xAA) != HAL_OK)
-//      Error_Handler();
 
 //  driver::imu sensor = driver::imu(&hi2c1, nullptr, 0);
 //  	  int16_t gyro_val[3];
@@ -222,10 +214,12 @@ HSEM notification */
     /* USER CODE BEGIN 3 */
 
 	  MX_LWIP_Process();
-	  udp_client_periodic();
-	  HAL_Delay(1000);
+//	  udp_client_periodic();
+//	  HAL_Delay(1000);
 //	  Process_LEDs_Buttons();
-//	  Servo_TestFixedPositions(&htim3);
+//	  Servo_Test
+//	  FixedPositions(&htim3);
+	  Servo_Update(&htim3);
 //	  printf("Binding printf Test!\r\n");
 //	  UART_Send_String("Hello from STM32 UART5!\r\n");
 //	  sensor.getMag(mag_val);

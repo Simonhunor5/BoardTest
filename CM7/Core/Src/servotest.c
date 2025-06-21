@@ -23,3 +23,9 @@ void Servo_TestFixedPositions(TIM_HandleTypeDef *htim) {
 
 }
 
+void Servo_Update(TIM_HandleTypeDef *htim) {
+    __HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_1, g_servo_values.roll);
+    __HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_2, g_servo_values.pitch);
+    __HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_3, g_servo_values.yaw);
+}
+
